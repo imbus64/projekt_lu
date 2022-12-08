@@ -18,9 +18,8 @@ public class Bank {
 	* den befintliga användas. Det nya kontonumret returneras.
 	*/
 	int addAccount(String holderName, long idNr) {
-		Customer c = new Customer(holderName, idNr);
-		if(!this.accounts.stream().anyMatch(e -> e.getHolder() == c)) {
-			this.accounts.add(new BankAccount(c));
+		if(!this.accounts.stream().anyMatch(e -> e.getHolder().getIdNr() == idNr)) {
+			this.accounts.add(new BankAccount(new Customer(holderName, idNr)));
 			return 0;
 		}
 		return 1;
@@ -31,8 +30,8 @@ public class Bank {
 	 * ingen sådan finns.
 	 */
 	Customer findHolder(long idNr) {
-		return this.accounts.stream().filter(acc -> acc.getHolder().getIdNr() == idNr).findAny().orElse(null)
-				.getHolder();
+		BankAccount b = this.accounts.stream().filter(acc -> acc.getHolder().getIdNr() == idNr).findAny().orElse(null);
+		return b != null ? b.getHolder() : null;
 	}
 
 	/**
@@ -40,7 +39,7 @@ public class Bank {
 	 * fanns (och kunde tas bort), annars false.
 	 */
 	boolean removeAccount(int number) {
-		return this.accounts.remove(number) != null;
+		return this.accounts.removeIf(acc -> acc.getAccountNumber() == number);
 	}
 
 	/**
@@ -76,7 +75,7 @@ public class Bank {
 	 */
 	ArrayList<Customer> findByPartofName(String namePart) {
 		ArrayList<Customer> c_list = new ArrayList<Customer>();
-		this.accounts.stream().filter(acc -> acc.getHolder().getName().contains(namePart)).forEach(acc -> c_list.add(acc.getHolder()));
+		this.accounts.stream().filter(acc -> acc.getHolder().getName().toLowerCase().contains(namePart.toLowerCase())).forEach(acc -> c_list.add(acc.getHolder()));
 		return c_list;
 	}
 }
